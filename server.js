@@ -26,6 +26,10 @@ title_parts.forEach(function(element, index, array) {
 });
 process.title = title_parts.join(' ');
 
+process.addListener("uncaughtException", function (err) {
+    console.log("Uncaught exception: " + err);
+});
+
 var debug = false;
 var packed = false;
 var packedName = "";

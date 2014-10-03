@@ -1,0 +1,16 @@
+{
+  "name": "cloud9.ide.run-c",
+    "version": "0.0.1",
+
+    "main": "./run-c.js",
+    "private": true,
+
+    "plugin": {
+      "consumes": [
+        "ide",
+      "process-manager",
+      "ide.ext.state",
+      "eventbus"
+        ]
+    }
+}

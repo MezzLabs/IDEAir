@@ -127,6 +127,7 @@ define(function(require, exports, module) {
             }
 
             if (message.type == "attached") {
+                console.info("Connected, after attached by server...");
                 ide.connecting = false;
                 ide.connected = true;
                 ide.dispatchEvent("socketConnect");
@@ -140,6 +141,10 @@ define(function(require, exports, module) {
                         "Received following error from server:",
                         JSON.stringify(message.message)
                     );
+                    if(message.message.toString().trim() == "Session ID missing"){
+                        console.log("ERROR: "+message.message.toString());
+                        location.reload();
+                    }    
                 }
             }
 

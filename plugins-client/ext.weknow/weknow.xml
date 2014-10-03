@@ -1,0 +1,42 @@
+<a:application xmlns:a="http://ajax.org/2005/aml">
+  <a:window
+    id        = "winWeknow"
+    title     = "Wiki"
+    icon      = ""
+    left = "200"
+    top = "60"
+    onafterresize = "require('ext/weknow/weknow').onafterresize()" 
+    onbeforeresize = "require('ext/weknow/weknow').onbeforeresize()" 
+    resizable = "true"
+    buttons   = "close"
+    modal     = "false"
+    skin      = "bk-window"
+    width     = "1000"
+    height    = "600"
+    kbclose   = "true"
+    draggable = "true" >
+    <a:vbox anchors="0 0 0 0" edge="0 0 11 0" class ="dockcol" >
+      <a:tab skin="docktab"  flex="1">
+        <a:page id="pgWeknow" caption="Weknow">
+          <a:bar border="0 0 0 0">
+            <a:hbox class="weknowbar" height="36" align="center" padding="5">
+              <a:textbox id="txtWeknow" style="width:100%" class="ace_searchbox tb_textbox searchbox searchTxt tb_console"
+                flex="1" value=""
+                onkeydown="if (event.keyCode == 13) require('ext/weknow/weknow').refresh()" />
+              <a:button onclick="require('ext/weknow/weknow').refresh()" skin="weknow" skinset="weknowskin" class="refresh"></a:button>
+              <a:divider skin="c9-divider" />
+              <a:button onclick="require('ext/weknow/weknow').popup()" skin="weknow" skinset="weknowskin" class="popup"></a:button>
+            </a:hbox>
+          </a:bar>
+
+          <iframe
+            class="weknow_iframe"
+            onload="require('ext/weknow/weknow').onLoad()"
+            src="" />
+
+        </a:page>
+      </a:tab>
+
+    </a:vbox>
+  </a:window>
+</a:application>

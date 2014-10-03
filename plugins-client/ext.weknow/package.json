@@ -1,0 +1,14 @@
+{
+    "name": "ext.weknow",
+    "version": "0.0.1",
+    "main": "weknow.js",
+    "private": true,
+    "plugin": {
+        "provides": [
+            "ext.weknow"
+        ],
+        "consumes": [
+            "client-plugins"
+        ]
+    }
+}

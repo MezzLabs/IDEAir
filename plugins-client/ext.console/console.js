@@ -22,6 +22,8 @@ var theme = require("text!ext/console/themes/arthur.css");
 var inputHistory = require("ext/console/input_history");
 var anims = require("ext/anims/anims");
 var preview = require("ext/preview/preview");
+var wiki = require("ext/weknow/weknow");
+var runpanel = require("ext/runpanel/runpanel");
 
 // Some constants used throughout the plugin
 var KEY_TAB = 9, KEY_CR = 13, KEY_UP = 38, KEY_ESC = 27, KEY_DOWN = 40;
@@ -49,7 +51,10 @@ module.exports = ext.register("ext/console/console", {
     hiddenInput : true,
 
     nodes : [],
-
+    keywords : [],
+    keywordsStr : '',
+    strQueue: [],
+    
     minHeight : 150,
     maxHeight: window.innerHeight - 70,
 
@@ -199,6 +204,7 @@ module.exports = ext.register("ext/console/console", {
 
             outputBlocks[0].parentNode.removeChild(outputBlocks[0]);
         }
+        this.keywordsStr = '';
 
         return false;
     },
@@ -218,9 +224,17 @@ module.exports = ext.register("ext/console/console", {
                 txtConsoleInput.focus();
         }
     },
-
+    showConsole : function () {
+      tabConsole.set("console");
+    },
     showOutput: function() {
-        tabConsole.set("output");
+      tabConsole.set("output");
+    },
+    logUnvalidMsg : function (msg) {
+                      this.log(
+                          "<div class='item console_log' " +
+                          "style='font-weight:bold;color:yellow'>" +
+                          apf.escapeXML(msg) + "</div>");
     },
 
     getCwd: function() {
@@ -424,6 +438,9 @@ module.exports = ext.register("ext/console/console", {
     },
 
     onMessage: function(e) {
+	console.log("=======================")
+	console.log(e.message)
+	console.log("=======================")
         if (!e.message.type)
             return;
 
@@ -516,6 +533,14 @@ module.exports = ext.register("ext/console/console", {
                 };
                 txtConsolePrompt.setValue("$ " + stdin_prompt);
                 txtConsolePrompt.show();
+               // hack for gdbserver
+               if (message.extra && message.extra.original_line && 
+/gdb/.test(message.extra.original_line)) {
+		this.evalInputCommand(
+		  "target remote 127.0.0.1:9000");
+                  this.evalInputCommand(
+	          "symbol-file remote:" + runpanel.pS().mainFilePath);
+} 
                 break;
             case "npm-module-data":
                 if (!extra.original_line || !this.inited)
@@ -628,6 +653,39 @@ module.exports = ext.register("ext/console/console", {
         this.markupInsertionPoint = consoleRow;
 
         ide.addEventListener("socketMessage", this.onMessage.bind(this));
+
+        commands.addCommand({
+            name: "searchWiki",
+            hint: "search wiki for help ",
+            exec: function () {
+                _self.searchWiki();
+            }
+        });
+
+        commands.addCommand({
+            name: "appendToQueue",
+            hint: "search wiki for help ",
+            exec: function () {
+                _self.appendToQueue();
+            }
+        });
+
+        commands.addCommand({
+            name: "clearQueue",
+            hint: "search wiki for help ",
+            exec: function () {
+                _self.clearQueue();
+            }
+        });
+
+        commands.addCommand({
+            name: "searchQueue",
+            hint: "search wiki for help ",
+            exec: function () {
+                _self.searchQueue();
+            }
+        });
+
 
         commands.addCommand({
             name: "help",
@@ -762,6 +820,19 @@ module.exports = ext.register("ext/console/console", {
                 _self.showInput(false, true);
             else if (apf.isTrue(showInput))
                 _self.showInput(null, true);
+        });
+        
+        ide.addEventListener("ext/console/console", function() {
+            _self.nodes.push(
+                mnuCtxEditor.insertBefore(new apf.item({
+                    id : "mnuCtxEditorWiki",
+                    caption : "Search WeKnow",
+                    command: "wikipanel"
+                }), mnuCtxEditor.firstChild),
+                mnuCtxEditor.insertBefore(new apf.divider({
+                    visible : "{mnuCtxEditorWiki.visible}"
+                }), mnuCtxEditor.firstChild)
+            );
         });
 
         stProcessRunning.addEventListener("activate", function() {
@@ -1037,6 +1108,30 @@ module.exports = ext.register("ext/console/console", {
             txtConsole.addValue(text);
         else
             this.logged.push(text);
+    },
+
+    appendToQueue: function(){
+      this.strQueue.push(window.getSelection() + '');
+    },
+    clearQueue: function(){
+      this.strQueue = [];
+    },
+    searchQueue: function(){
+      this.search(this.strQueue.join(" "));
+    },
+    search: function(str){
+      if(str != "") 
+        wiki.weknow([wiki.queryUrl,encodeURIComponent(str)].join(""));
+    },
+    searchWiki: function() {
+        this.search(window.getSelection());
+    },
+
+    
+    addKeywords: function(){
+        var selection = window.getSelection();
+        this.keywordsStr += selection + ' '
+        this.log("Selected Keywords: "+this.keywordsStr + "\n");
     },
 
     maximizeConsoleHeight: function(){

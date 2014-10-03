@@ -191,6 +191,9 @@ module.exports = ext.register("ext/noderunner/noderunner", {
         if (path.match(/\.rb$/))
             return "ruby";
 
+        if (path.match(/\.c$/))
+           return "c";
+
         return "node";
     }
 });

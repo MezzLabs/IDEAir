@@ -1,0 +1,16 @@
+{
+  "name": "cloud9.run.c-debug",
+  "version": "0.0.1",
+  "main": "./c_debug-plugin.js",
+  "private": true,
+  "dependencies": {},
+  "plugin": {
+    "provides": [ "run-c_debug" ],
+    "consumes": [
+      "process-manager",
+      "run-c",
+      "vfs",
+      "sandbox"
+    ]
+  }
+}

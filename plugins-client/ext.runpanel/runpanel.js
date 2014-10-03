@@ -18,8 +18,11 @@ var dock = require("ext/dockpanel/dockpanel");
 var save = require("ext/save/save");
 var markup = require("text!ext/runpanel/runpanel.xml");
 var markupSettings = require("text!ext/runpanel/settings.xml");
+var markupAddConfigWin = require("text!ext/runpanel/add_config.xml");
+var envSettings = require("text!ext/runpanel/env_settings.xml");
 var cssString = require("text!ext/runpanel/style.css");
 var commands = require("ext/commands/commands");
+var c9console;
 
 /*global stProcessRunning*/
 
@@ -39,6 +42,7 @@ module.exports = ext.register("ext/runpanel/runpanel", {
 
     nodes : [],
     model : new apf.model(),
+    configName : "defaultName",
     
     disableLut: {
         "terminal": true
@@ -53,7 +57,7 @@ module.exports = ext.register("ext/runpanel/runpanel", {
 
         panels.register(this, {
             position : 3000,
-            caption: "Run & Debug",
+            caption: "Build & Run",
             "class": "rundebug"
         });
 
@@ -90,17 +94,16 @@ module.exports = ext.register("ext/runpanel/runpanel", {
                 "id" : "mnuRunCfg",
                 "onprop.visible" : function(e){
                     if (e.value) {
-                        if (!this.populated) {
-                            _self.$populateMenu();
-                            this.populated = true;
-                        }
-
-                        if (!self.tabEditors
-                          || tabEditors.length == 0
-                          || _self.excludedTypes[tabEditors.getPage().id.split(".").pop()])
-                            _self.mnuRunCfg.firstChild.disable();
-                        else
-                            _self.mnuRunCfg.firstChild.enable();
+                        //if (!this.populated) {
+                        //    _self.$populateMenu();
+                        //    this.populated = true;
+                        //}
+                        //if (!self.tabEditors
+                        //  || tabEditors.length == 0
+                        //  || _self.excludedTypes[tabEditors.getPage().id.split(".").pop()])
+                        //    _self.mnuRunCfg.firstChild.disable();
+                        //else
+                        //    _self.mnuRunCfg.firstChild.enable();
                     }
                 }
             }),
@@ -139,21 +142,19 @@ module.exports = ext.register("ext/runpanel/runpanel", {
         apf.setStyleClass(btnStop.$ext, "btnStop");
 
         tooltip.add( btnRun.$button1, {
-            message : "Run &amp; Debug your <span>Node.js</span> applications, or run your <span>PHP</span>, <span>Python</span>, or <span>Ruby</span> code.\
-            For more help, check out our guided tour in the Help menu.\
-            Want your language supported? Tweet us \
-            <a href='http://twitter.com/Cloud9IDE' target='_blank'>@Cloud9IDE</a>!",
+            message : 
+              "Run &amp; Debug your <span>Node.js</span> applications, or run your <span>C</span>, or <span>Ruby</span> code.",
             width : "203px",
             timeout : 1000,
             hideonclick : true
         });
 
         var c = 0;
-        menus.addItemToMenu(this.mnuRunCfg, new apf.item({
-            caption  : "no run history",
-            disabled : true
-        }), c += 100);
-        menus.addItemToMenu(this.mnuRunCfg, new apf.divider(), c += 100);
+        //menus.addItemToMenu(this.mnuRunCfg, new apf.item({
+        //    caption  : "no run history",
+        //    disabled : true
+        //}), c += 100);
+        //menus.addItemToMenu(this.mnuRunCfg, new apf.divider(), c += 100);
         menus.addItemToMenu(this.mnuRunCfg, new apf.item({
             caption : "Configure....",
             onclick : function(){
@@ -175,11 +176,41 @@ module.exports = ext.register("ext/runpanel/runpanel", {
             checked : "[{require('ext/settings/settings').model}::auto/configurations/@autohide]"
         }), c += 100);
 
-        settings.addSettings("General", markupSettings);
+        settings.addSettings("ENV VARIABLES", envSettings);
 
         ide.addEventListener("settings.load", function(e){
             settings.setDefaults("auto/node-version", [
                 ["version", "auto"]
+            ]);
+            settings.setDefaults("env_settings", [
+                ["node", "/usr/bin/node"]
+            ]);
+            settings.setDefaults("env_settings", [
+                ["python", "/usr/bin/python"]
+            ]);
+            
+            settings.setDefaults("env_settings", [
+                ["gdb", "/usr/bin/gdb"]
+            ]);
+
+            settings.setDefaults("env_settings", [
+                ["gdbServer", "/usr/bin/gdbserver"]
+            ]);
+
+            settings.setDefaults("env_settings", [
+                ["cc", "/usr/bin/gcc"]
+            ]);
+
+            settings.setDefaults("env_settings", [
+                ["xx", "/usr/bin/g++"]
+            ]);
+
+            settings.setDefaults("env_settings", [
+                ["runCflags", "-Wall -O"]
+            ]);
+
+            settings.setDefaults("env_settings", [
+                ["debugCflags", "-Wall -O -g"]
             ]);
 
             settings.setDefaults("general", [
@@ -220,26 +251,40 @@ module.exports = ext.register("ext/runpanel/runpanel", {
                 _self.model.setQueryValue("config[@curfile]/@path", path);
                 _self.model.setQueryValue("config[@curfile]/@name",
                     path.split("/").pop() + " (active file)");
+
+                _self.model.setQueryValue("config[@curfile]/@project",ide.projectName);
+
+                //_self.model.setQueryValue("config[@curfile]/@project",
+                //    path.split("/")[1]);
+
+                var mainFile = _self.model.queryValue("config[@curfile]/@mainFile")
+                if(!mainFile || mainFile.trim() == "")
+                  _self.model.setQueryValue("config[@curfile]/@mainFile",ide.projectName);
+
+                var alwaysMake = _self.model.queryValue("config[@curfile]/@alwaysMake")
+                if(!alwaysMake || alwaysMake.trim() == "")
+                  _self.model.setQueryValue("config[@curfile]/@alwaysMake","true");
+
             }
         }
 
         ide.addEventListener("init.ext/editors/editors", function(e) {
-            setActiveFile(tabEditors.getPage());
+            //setActiveFile(tabEditors.getPage());
 
             ide.addEventListener("tab.afterswitch", function(e){
-                setActiveFile(e.nextPage);
+                //setActiveFile(e.nextPage);
             });
 
             ide.addEventListener("updatefile", function(e){
-                setActiveFile(tabEditors.getPage());
+                //setActiveFile(tabEditors.getPage());
             });
             
             ide.addEventListener("tab.afterswitch", function(e){
-                _self.enable();
+                //_self.enable();
             });
             ide.addEventListener("closefile", function(e){
-                if (tabEditors.getPages().length == 1)
-                    _self.disable();
+                //if (tabEditors.getPages().length == 1)
+                //    _self.disable();
             });
         });
 
@@ -342,7 +387,7 @@ module.exports = ext.register("ext/runpanel/runpanel", {
 
         setTimeout(function() {
             if (lstRunCfg.$model)
-                lstRunCfg.select(lstRunCfg.$model.queryNode("config[@last='true']"));
+                lstRunCfg.select(_self.currentConfig());
         });
     },
 
@@ -357,30 +402,75 @@ module.exports = ext.register("ext/runpanel/runpanel", {
         winRunPanel.show();
     },
 
+    showAddConfigWin: function(){
+      if (markupAddConfigWin){
+        apf.document.documentElement.insertMarkup(markupAddConfigWin);
+        addConfigWin.show();
+      };
+
+      var path, name, file = ide.getActivePageModel();
+      var extension = "";
+
+      if (file) {
+        path  = file.getAttribute("path").slice(ide.davPrefix.length + 1); //@todo inconsistent
+        name  = file.getAttribute("name").replace(/\.(js|py)$/,
+          function(full, ext){ extension = ext; return ""; });
+      }else {
+        extension = name = path = "";
+      };
+      var pS = this.pS();
+      addConfigProject.setValue(pS.project.name);
+      addConfigName.setValue(pS.project.name + " configuration");
+      addConfigRuntime.setValue("c auto");
+      addConfigAlwaysMake.setValue("true");
+    },
+
+    newCfgNode: function(opts){
+      return apf.n("<config />")
+        .attr("alwaysMake",opts.alwaysMake)
+        .attr("name",      opts.name)
+        .attr("projectName",opts.projectName)
+        .attr("mainFile",  opts.mainFile)
+        .attr("value",     opts.runtime)
+        .node();
+     },
+
+    addDefaultConfig: function(opts){
+      if(!opts){
+        opts = {
+          "name": this.configName,
+          "alwaysMake": "true",
+          "projectName": ide.projectName,
+          "mainFile": ide.projectName,
+          "runtime": "c auto"
+        };
+      };
+      var cfg = this.newCfgNode(opts)
+      this.model.appendXml(cfg)
+    },
 
     addConfig : function() {
-        var path, name, file = ide.getActivePageModel();
-        var extension = "";
-        
-        if (file) {
-            path  = file.getAttribute("path").slice(ide.davPrefix.length + 1); //@todo inconsistent
-            name  = file.getAttribute("name").replace(/\.(js|py)$/,
-                function(full, ext){ extension = ext; return ""; });
-        }
-        else {
-            extension = name = path = "";
-        }
+      //var piaIp = addConfigPiaIp.getValue();
+      var name = addConfigName.getValue();
+      var mainFile = addConfigMainFile.getValue();
+      var alwaysMake = addConfigAlwaysMake.getValue();
+      var project = addConfigProject.getValue();
+      var runtime = addConfigRuntime.getValue();
+      var cfg = apf.n("<config />")
+          .attr("path","")
+          .attr("alwaysMake",alwaysMake)
+          .attr("name",name)
+          .attr("project",project)
+          .attr("mainFile",mainFile)
+          //.attr("piaIp",piaIp)
+          .attr("value",runtime)
+          .attr("args", "").node();
 
-        var cfg = apf.n("<config />")
-            .attr("path", path)
-            .attr("name", name)
-            .attr("extension", extension)
-            .attr("args", "").node();
+      var node = this.model.appendXml(cfg);
+      this.$addMenuItem(node);
 
-        var node = this.model.appendXml(cfg);
-        this.$addMenuItem(node);
-
-        lstRunCfg.select(node);
+      addConfigWin.hide();
+      lstRunCfg.select(node);
     },
 
     showRunConfigs : function() {
@@ -395,25 +485,78 @@ module.exports = ext.register("ext/runpanel/runpanel", {
         return apf.isTrue(settings.model.queryValue('auto/configurations/@debug'));
     },
 
+    isIpv4: function(strIP) {  
+      if(strIP == ""){return false;}
+      if(true &&
+          (/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/g).test(strIP) 
+          && RegExp.$1 < 256 
+          && RegExp.$2 < 256 
+          && RegExp.$3 < 256 
+          && RegExp.$4 < 256){return true;}  
+      return false;  
+    },
+
+    /**  
+     * valid input value
+     **/
+    valid: function(config){
+      var valid = true;
+      var pS = this.pS(config);
+      var envVariables = this.getEnvVariables();
+
+      ["gdb","cc","xx","runCflags","debugCflags"].forEach(function(attr){
+        if(!envVariables[attr] || envVariables[attr] == ""){
+          c9console.logUnvalidMsg("please check you env variable: " + attr);
+          valid = false;
+        };
+      });
+
+      if(!pS.mainFile || pS.mainFile == ""){
+        c9console.logUnvalidMsg("main file must be present!");
+        valid = false;
+      };
+      return valid;
+    },
+
+    currentConfig: function(){
+      var config =  this.model.queryNode("config[@name='" + this.configName + "']");
+
+      if(!config) 
+        this.addDefaultConfig();
+
+      var configs = this.model.queryNodes("config");
+      //console.log("configs ===> " + configs.length);
+
+
+      return this.model.queryNode("config[@name='" + this.configName + "']");
+    },
+
+    //currentConfig: function(){
+    //
+    //  var config;
+    //  if (window.winRunPanel && winRunPanel.visible)
+    //    config = lstRunCfg.selected;
+    //  else {
+    //    console.log(this.model.queryNode("node()[@last='true']"))
+    //    config = this.model.queryNode("node()[@last='true']") || 
+    //      this.model.queryNode("config[@curfile]");
+    //  }
+    //  return config;
+    //},
+
     run : function(debug) {
-        var node;
+        c9console = require("ext/console/console")
+        this.showRunConfigs(false);
 
-        if (window.winRunPanel && winRunPanel.visible)
-            node = lstRunCfg.selected;
-        else {
-            node = this.model.queryNode("node()[@last='true']")
-                || this.model.queryNode("config[@curfile]");
+        var config = this.currentConfig(); 
+
+        if (!this.valid(config)) {
+          c9console.show(true);
+          c9console.showConsole();
+        }else{
+          this.runConfig(config, this.shouldRunInDebugMode());
+          ide.dispatchEvent("track_action", {type: debug ? "debug" : "run"});
         }
-
-        if (node.getAttribute("curfile")
-          && this.excludedTypes[node.getAttribute("path").split(".").pop()]) {
-            this.showRunConfigs(false);
-            return;
-        }
-
-        this.runConfig(node, this.shouldRunInDebugMode());
-
-        ide.dispatchEvent("track_action", {type: debug ? "debug" : "run"});
     },
 
     $populateMenu : function() {
@@ -459,7 +602,7 @@ module.exports = ext.register("ext/runpanel/runpanel", {
     },
 
     runConfig : function(config, debug) {
-        //ext.initExtension(this);
+
         var model = settings.model;
         var saveallbeforerun = apf.isTrue(model.queryValue("general/@saveallbeforerun"));
         if (saveallbeforerun)
@@ -473,17 +616,59 @@ module.exports = ext.register("ext/runpanel/runpanel", {
             apf.xmldb.removeAttribute(lastNode, "last");
         apf.xmldb.setAttribute(config, "last", "true");
 
-        self["txtCmdArgs"] && txtCmdArgs.blur(); // fix the args cache issue #2763
         // dispatch here instead of in the implementation because the implementations
         // will vary over time
         ide.dispatchEvent("beforeRunning");
-        var args = config.getAttribute("args");
+
         noderunner.run(
-            config.getAttribute("path"),
-            args ? args.split(" ") : [],
+            "test.c",
+            this.getArgs(config),
             debug,
             config.getAttribute("value")
         );
+    },
+
+    /**
+     * evn variables for make
+     * */
+    getEnvVariables: function(){
+      return {
+        gdb: settings.model.queryValue("env_settings/@gdb"),
+        gdbServer: settings.model.queryValue("env_settings/@gdbServer"), 
+        cc: settings.model.queryValue("env_settings/@cc"),
+        xx: settings.model.queryValue("env_settings/@xx"),
+        runCflags: settings.model.queryValue("env_settings/@runCflags"),
+        debugCflags: settings.model.queryValue("env_settings/@debugCflags"),
+        node: settings.model.queryValue("env_settings/@node"),
+        python: settings.model.queryValue("env_settings/@python")
+      };
+    },
+
+    /**
+     * Project Run & Debug Settings
+     **/
+    pS: function(config){
+      if(!config) 
+        config = this.currentConfig();
+      var mainFile = config.getAttribute("mainFile"), 
+          runtime = config.getAttribute("value"),
+          projectName = ide.projectName,
+          alwaysMake = config.getAttribute("alwaysMake")
+
+      return {
+          name: projectName,
+          mainFile: mainFile,
+          mainFilePath: "./bin/" + mainFile,
+          alwaysMake: alwaysMake,
+          runtime: runtime
+      }
+    },
+
+    getArgs: function(config){
+      return {
+        "project" : this.pS(config),
+        "env" : this.getEnvVariables()
+      }
     },
 
     stop : function() {

@@ -7,7 +7,7 @@
  */
 define(function(require, exports, module) {
 var editors = require("ext/editors/editors");
-
+var weknow = require("ext/weknow/weknow");
 exports.test = {};
 var MAX_LINES = 512;
 var RE_relwsp = /(?:\s|^|\.\/)([\w\_\$-]+(?:\/[\w\_\$-]+)+(?:\.[\w\_\$]+))?(\:\d+)(\:\d+)*/g;
@@ -30,7 +30,7 @@ var openLinkedFile = function(path, row, column) {
 var strRepeat = function(s, t) { return new Array(t + 1).join(s); };
 var escRegExp = function(s) { return s.replace(/([.*+?^${}()|[\]\/\\])/g, '\\$1'); };
 
-var createItem = module.exports.test.createItem = function(line, ide) {
+var createItem = module.exports.test.createItem = function(line, ide,stream) {
     if (!line)
         return "";
 
@@ -38,15 +38,31 @@ var createItem = module.exports.test.createItem = function(line, ide) {
     var davPrefix = ide.davPrefix;
     var wsRe = new RegExp(escRegExp(workspaceDir) + "\\/([^:]*)(:\\d+)(:\\d+)*", "g");
 
-    if ((line.search(RE_relwsp) !== -1) || (line.search(wsRe) !== -1)) {
-        var html = "<a href='#' data-wsp='" + davPrefix + "/$1,$2,$3'>___$1$2$3</a>";
-        line = line
-            .replace(RE_relwsp, html.replace("___", ""))
-            .replace(wsRe, html.replace("___", workspaceDir + "/"));
+    if (stream == "stderr") {
+      var replaced = line.replace(/[‘|’]/g,"\'");
+      replaced = replaced.replace(/[“|”]/g,"\"");
+
+      var wikiUrl = replaced.replace(/(\w+).*\:(\d*:?)*\s*/,"");
+      wikiUrl = wikiUrl.replace(/(\/)/,"");
+      wikiUrl = "http://stackoverflow.com/search/?q=" + encodeURIComponent(wikiUrl); 
+      wikiUrl = wikiUrl.replace(/\'/g,"\\\'");
+      wikiUrl = wikiUrl.replace(/\"/g,"\\\"");
+
+      line = "\u001b[1;31;40m" + replaced + "[<a style = 'color:green' onclick=\"require('ext/weknow/weknow').weknow('" + wikiUrl 
+        + "');\" href='javascript:void(0);'>?</a>]";
+    } else {
+
+      if ((line.search(RE_relwsp) !== -1) || (line.search(wsRe) !== -1)) {
+          var html = "<a href='#' data-wsp='" + davPrefix + "/$1,$2,$3'>___$1$2$3</a>";
+          line = line
+              .replace(RE_relwsp, html.replace("___", ""))
+              .replace(wsRe, html.replace("___", workspaceDir + "/"));
+      }
+      else if (line.search(RE_URL) !== -1) {
+          line = line.replace(RE_URL, "<a onclick='require(\"ext/preview/preview\").preview(\"$1\"); return false;' href='$1' target='_blank'>$1</a>");
+      }
     }
-    else if (line.search(RE_URL) !== -1) {
-        line = line.replace(RE_URL, "<a onclick='require(\"ext/preview/preview\").preview(\"$1\"); return false;' href='$1' target='_blank'>$1</a>");
-    }
+
 
     // escape HTML/ XML, but preserve the links
     var links = [];
@@ -233,7 +249,7 @@ module.exports.logNodeStream = function(data, stream, useOutput, ide) {
     var fragment = document.createDocumentFragment();
     for (var i=0, l = lines.length; i<l; i++) {
         var div = document.createElement("div");
-        var divContent = createItem(lines[i], ide);
+        var divContent = createItem(lines[i], ide,stream);
         if (divContent && divContent.length) {
             div.innerHTML = divContent;
             fragment.appendChild(div);

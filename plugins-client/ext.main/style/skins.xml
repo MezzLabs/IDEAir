@@ -5619,13 +5619,13 @@
         }
 
         .run-panel-info {
-        	background: rgba(230, 230, 230, 0.8) url(images/c9-repeat-x.png) repeat-x;
+        /**background: rgba(230, 230, 230, 0.8) url(images/c9-repeat-x.png) repeat-x;**/
             background-position:  0 -954px;
             border-right: 1px solid white;
 			padding: 10px 10px 4px 10px;
         }
         .run-panel-info .black_label {
-        	color: #919191;
+        	color: #000000;
             text-shadow: 0 1px 0 white;
         }
         .run-panel-info .btextbox {

@@ -1,0 +1,50 @@
+<a:application xmlns:a="http://ajax.org/2005/aml">
+    <a:hbox position="20000" edge="2 5 5 5" align="right" class="underlined">
+    <a:label flex="1">$CC:</a:label>
+    <a:textbox flex="3" margin="0 2 0 2"
+     value="[env_settings/@cc]"></a:textbox>
+
+    <a:label flex="1">$XX:</a:label>
+    <a:textbox  flex="3" margin="0 2 0 2" 
+      value="[env_settings/@xx]"></a:textbox>
+    </a:hbox>
+
+    <a:hbox position="20001" edge="2 5 5 5" align="right" class="underlined">
+      <a:label flex="1">$CFLAGS:</a:label>
+    </a:hbox>
+
+    <a:hbox position="20002" edge="2 5 5 5" align="right" class="underlined">
+      <a:label flex="1">run:</a:label>
+      <a:textbox  flex="3" margin="0 2 0 2" 
+      value="[env_settings/@runCflags]"></a:textbox>
+
+      <a:label flex="1">debug:</a:label>
+      <a:textbox  flex="3" margin="0 2 0 2" 
+      value="[env_settings/@debugCflags]"></a:textbox>
+    </a:hbox>
+
+    <a:hbox position="20003" edge="2 5 5 5" align="right" class="underlined">
+      <a:label flex="3">$GDB</a:label>
+      <a:textbox  flex="7" margin="0 2 0 2" 
+      value="[env_settings/@gdb]"></a:textbox>
+    </a:hbox>
+
+    <a:hbox position="20004" edge="2 5 5 5" align="right" class="underlined">
+      <a:label flex="3">$GDBSERVER</a:label>
+      <a:textbox  flex="7" margin="0 2 0 2" 
+      value="[env_settings/@gdbServer]"></a:textbox>
+    </a:hbox>
+
+    <a:hbox position="20005" edge="2 5 5 5" align="right" class="underlined">
+      <a:label flex="3">$NODE</a:label>
+      <a:textbox  flex="7" margin="0 2 0 2" 
+      value="[env_settings/@node]"></a:textbox>
+    </a:hbox>
+
+    <a:hbox position="20006" edge="2 5 5 5" align="right" class="underlined">
+      <a:label flex="3">$PYTHON</a:label>
+      <a:textbox  flex="7" margin="0 2 0 2" 
+      value="[env_settings/@python]"></a:textbox>
+    </a:hbox>
+
+    </a:application>

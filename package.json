@@ -59,8 +59,13 @@
         "url": "http://www.gnu.org/licenses/gpl-3.0.txt"
     }],
 
+    "config": {
+        "unsafe-perm":true
+    },
+
     "scripts": {
-        "start": "sh ./bin/cloud9.sh",
+        "preinstall": "sh ./install_local_deps.sh",
+        "start": "sh ./bin/cloud9.sh -w testcases/c/testMakefile -l 0.0.0.0",
         "build-debug": "node ./scripts/build-debug",
         "build-packed": "node ./scripts/build-packed",
         "postinstall": "make ace"

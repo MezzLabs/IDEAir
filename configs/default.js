@@ -29,6 +29,7 @@ var debugPort = argv.b || process.env.DEBUG_PORT || 5858;
 
 var useAuth = argv.username && argv.password;
 
+var clientPlugins;
 var config = [
     {
         packagePath: "./connect",
@@ -75,7 +76,7 @@ var config = [
         ],
         packed: false,
         packedName: "",
-        clientPlugins: [
+        clientPlugins: clientPlugins = [
             "ext/filesystem/filesystem",
             "ext/settings/settings",
             "ext/editors/editors",
@@ -113,6 +114,7 @@ var config = [
             "ext/runpanel/runpanel", //Add location rule
             "ext/debugger/debugger", //Add location rule
             "ext/dbg-node/dbg-node",
+            "ext/dbg-c/dbg-c",
             "ext/noderunner/noderunner", //Add location rule
             "ext/console/console",
             "ext/consolehints/consolehints",
@@ -149,7 +151,9 @@ var config = [
             "ext/autosave/autosave",
             "ext/revisions/revisions",
             "ext/language/liveinspect",
-            "ext/splitview/splitview"
+            "ext/splitview/splitview",
+            "ext/build/build",
+            "ext/weknow/weknow",
         ]
     }, {
         packagePath: "vfs-architect/local",
@@ -172,7 +176,8 @@ var config = [
         secret: "v1234"
     },
     {
-        packagePath: "./connect.session.file",
+        packagePath: "./connect.session.memory",
+        //packagePath: "./connect.session.file",
         sessionsPath: __dirname + "/../.sessions",
         maxAge: 7 * 24 * 60 * 60 * 1000
     },
@@ -185,6 +190,16 @@ var config = [
     "./cloud9.process-manager",
     "./cloud9.routes",
     "./cloud9.run.shell",
+
+    { packagePath: "./cloud9.run.c" },
+    { packagePath: "./cloud9.run.c-debug" },
+    { 
+      packagePath: "./cloud9.run.gcc",
+      gccPathes: {
+        default: "gcc",
+        "i686-apple-darwin11": "/usr/bin/gcc"
+      }
+    },
     {
         packagePath: "./cloud9.run.node",
         listenHint: "Important: in your scripts, use 'process.env.PORT' as port and '0.0.0.0' as host."
@@ -209,6 +224,8 @@ var config = [
     "./cloud9.ide.filelist",
     "./cloud9.ide.search",
     "./cloud9.ide.run-node",
+    "./cloud9.ide.run-c",
+    "./cloud9.ide.run-build",
     {
         packagePath: "./cloud9.ide.run-npm-module",
         allowShell: true
@@ -234,6 +251,21 @@ if (useAuth) {
         username: argv.username,
         password: argv.password
     });
+}
+
+var hasPTYJS = true;
+try {
+    //test for pty.js
+    require.resolve("pty.js");
+} catch(e) {
+    hasPTYJS = false
+}
+if(hasPTYJS){
+    clientPlugins.push("ext/terminal/terminal")
+    config.push({
+        packagePath: "./cloud9.ide.terminal",
+        cwd:projectDir
+    })
 }
 
 module.exports = config;

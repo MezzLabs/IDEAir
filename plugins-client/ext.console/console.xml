@@ -26,7 +26,10 @@
                       margin="1 0 0 1"
                       onclick="require('ext/console/console').hide();this.blur();"/>
                 </a:hbox>
-                <a:page id="pgConsole" caption="Console" name="console">
+    
+
+                <a:page id="pgConsole" caption="Console" name="console"
+                  contextmenu    = "mnuCtxConsole">
                     <a:text id="txtConsole"
                       margin     = "3 0 0 0"
                       anchors    = "0 17 0 0"
@@ -43,7 +46,10 @@
                       skin      = "console_scrollbar"
                       width     = "17" />
                 </a:page>
-                <a:page id="pgOutput" caption="Output" name="output">
+                <a:page id="pgOutput" caption="Output" name="output" 
+                  contextmenu    = "mnuCtxConsole"
+                  >
+
                     <a:text id="txtOutput"
                       margin     = "3 0 0 0"
                       anchors    = "0 17 0 0"
@@ -90,4 +96,22 @@
               caption = "Open files when navigating search results with ↓ ↑" />
         </a:menu>
     </a:bar>
+    <a:menu id="mnuCtxConsole">
+      <a:item id="mnuCtxConsoleSearchWiki" command="searchWiki">
+        Solve this issue
+      </a:item>
+      <a:item id="mnuCtxConsoleAppendSearchQueue" command="appendToQueue">
+        Append this to issue list
+      </a:item>
+      <a:item id="mnuCtxConsoleClearSearchQueue" command="clearQueue">
+        Discard issue list 
+      </a:item>
+      <a:item id="mnuCtxConsoleSearchQueue" command="searchQueue" >
+        Solve the list of issues
+      </a:item>
+    </a:menu>
 </a:application>
+<!-- 
+  oncontextmenu="var console = require('ext/console/console');
+  console.addKeywords();"
+-->

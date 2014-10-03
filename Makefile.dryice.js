@@ -4,6 +4,8 @@ var copy = require('dryice').copy;
 
 var ACE_HOME = __dirname + "/node_modules/ace"
 
+var TMPDIR = __dirname + "/tmp" 
+
 function main(args) {
     var target;
     if (args.length == 3) {
@@ -25,7 +27,7 @@ function main(args) {
     var project = {
         roots: [
             ACE_HOME + "/lib",
-            "/tmp/c9_worker_build",
+            TMPDIR + "/c9_worker_build",
             __dirname + "/node_modules/treehugger/lib"
         ],
         textPluginPattern: /^ace\/requirejs\/text!/
