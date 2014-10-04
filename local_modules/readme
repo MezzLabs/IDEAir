@@ -1,0 +1,1 @@
+The baseline is http://registry.npmjs.org/pty.js/-/pty.js-0.1.2.tgz. Based on that, pty.js-0.1.2 adds some fixes to make it work on both server and board.
