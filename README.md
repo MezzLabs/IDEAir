@@ -92,4 +92,4 @@ As you will see, a test C project will be opened.
 The GPL version 3, read it at [http://www.gnu.org/licenses/gpl.txt](http://www.gnu.org/licenses/gpl.txt)
 
 ## Contact
-[Shoumeng Yan](shoumeng.yan@gmail.com)
+[Shoumeng Yan](mailto:shoumeng.yan@gmail.com)
