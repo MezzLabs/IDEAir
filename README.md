@@ -23,7 +23,24 @@ Requirements:
 
   * NodeJS `0.10.x`
 
-Install:
+Install IDEAir
+    mkdir IDEAir
+    cd IDEAir
+    repo init -u https://github.com/ysminnpu/IDEAir-manifest.git
+    repo sync
+    cd cloud9
+    npm install
+    cd ../cloud9hub
+    npm install
+
+Start IDEAir server
+    ./start-dev.sh
+
+Use IDEAir
+    Open http://IDEAir_server:3105/#/dashboard with your favorite browser. 
+
+
+Only Install cloud9 (no project management feature)
 
     git clone https://github.com/ysminnpu/IDEAir.git cloud9
     cd cloud9
@@ -57,6 +74,15 @@ Cloud9 is compatible with all connect authentication layers,
 to implement your own, please see the `plugins-server/cloud9.connect.basic-auth` plugin
 on how we added basic authentication.
 
+For a quick trial, IDEAir can be started as follows. 
+
+    npm start
+
+It is the same as 
+
+    ./bin/cloud9.sh -w testcases/c/testMakefile -l 0.0.0.0
+
+As you will see, a test C project will be opened. 
 
 ## License
 
