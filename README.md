@@ -27,8 +27,10 @@ Requirements:
 
     mkdir IDEAir
     cd IDEAir
-    repo init -u https://github.com/ysminnpu/IDEAir-manifest.git
-    repo sync
+    wget https://raw.githubusercontent.com/ysminnpu/IDEAir-manifest/master/repo
+    chmod +x ./repo 
+    ./repo init -u https://github.com/ysminnpu/IDEAir-manifest.git
+    ./repo sync
     cd cloud9
     npm install
     cd ../cloud9hub
