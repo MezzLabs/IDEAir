@@ -10,6 +10,10 @@ var name = "terminal";
 var ProcessManager;
 var EventBus;
 var PluginOptions = {};
+
+var FS;
+var bash = "sh";
+
 module.exports = function setup(options, imports, register) {
     PluginOptions = options;
     ProcessManager = imports["process-manager"];
@@ -96,7 +100,19 @@ util.inherits(TerminalPlugin, Plugin);
                     rows: 24
                 });
             }else{
-                term = pty.spawn("sh", [], {
+                FS = require("fs");
+                if (typeof FS.exists !== "function") {
+                    FS.exists = require("path").exists;
+                }
+                FS.exists("/bin/bash", function(exists) {
+                    if (exists) { 
+                        bash="bash";
+                    }
+                });
+ 
+                console.log("using shell: " + bash);
+
+                term = pty.spawn(bash, [], {
                     name: 'xterm-color',
                     cols: 80,
                     rows: 24,
