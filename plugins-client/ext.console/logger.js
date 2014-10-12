@@ -39,14 +39,31 @@ var createItem = module.exports.test.createItem = function(line, ide,stream) {
     var wsRe = new RegExp(escRegExp(workspaceDir) + "\\/([^:]*)(:\\d+)(:\\d+)*", "g");
 
     if (stream == "stderr") {
-      var replaced = line.replace(/[‘|’]/g,"\'");
-      replaced = replaced.replace(/[“|”]/g,"\"");
+      //var replaced = line.replace(/[‘|’]/g,"\'");
+      //replaced = replaced.replace(/[“|”]/g,"\"");
 
-      var wikiUrl = replaced.replace(/(\w+).*\:(\d*:?)*\s*/,"");
-      wikiUrl = wikiUrl.replace(/(\/)/,"");
-      wikiUrl = "http://stackoverflow.com/search/?q=" + encodeURIComponent(wikiUrl); 
-      wikiUrl = wikiUrl.replace(/\'/g,"\\\'");
-      wikiUrl = wikiUrl.replace(/\"/g,"\\\"");
+      var replaced = line;
+      //HACK:sometimes 'xxx' is converted to bCANxxxbEM for unknow reason. convert it back here.
+      replaced = replaced.replace(/b\u0000\u0018/g,"\'");
+      replaced = replaced.replace(/b\u0000\u0019/g,"\'");
+
+      //Temp code: create test cases
+      //replaced = replaced.replace(/file2/g, "/dir1/dir2/file2.c"); //name: dir1/dir2/file.c
+      //replaced = replaced.replace(/file2\.c/g, "file2") //name: file
+
+      var wikiUrl = replaced;
+      //flatten file name form /dir1/dir2/file.c to dir1dir2file.c for easy further processing
+      wikiUrl = wikiUrl.replace(/(\/)/g,"");
+
+      //remove the "file:line:com:" prefix
+      //TODO: this regexp might be unnecessarily complex. check it later. 
+      wikiUrl = wikiUrl.replace(/(\w+)((\.)*(\w*))*\:(\d*:?)*\s*/,"");
+
+      //remove non-word charaters. 
+      wikiUrl = wikiUrl.replace(/\W/g," ");
+      wikiUrl = weknow.queryUrl + encodeURIComponent(wikiUrl); 
+      //wikiUrl = wikiUrl.replace(/\'/g,"\\\'");
+      //wikiUrl = wikiUrl.replace(/\"/g,"\\\"");
 
       line = "\u001b[1;31;40m" + replaced + "[<a style = 'color:green' onclick=\"require('ext/weknow/weknow').weknow('" + wikiUrl 
         + "');\" href='javascript:void(0);'>?</a>]";

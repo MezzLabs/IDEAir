@@ -74,10 +74,7 @@ define(function(require, exports, module) {
     onLoad: function(){},
 
     weknow: function(url){
-      this.show();
-      var frmWeknow = this.getIframe();
-        if (frmWeknow.$ext.src !== url)
-          this.refresh(url);
+      window.open(url, "_blank");
     },
     refresh: function (url) {
       var frmWeknow = this.getIframe();
