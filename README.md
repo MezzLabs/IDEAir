@@ -56,9 +56,9 @@ Then follow the installation instruction mentioned above, to install a 32 bit ve
 
 Then create a tarball with tar cvzf IDEAir.tgz IDEAir. Copy it to the board with scp IDEAir.tgz root@192.168.8.100:/home. 
 
-ssh root@192.168.8.100; cd /home/; tar xzvf IDEAir.tgz; cd IDEAir/cloud9hub/. Change config.js to use a proper url for the board - our test uses 192.168.8.100. 
+ssh root@192.168.8.100; cd /home/; tar xzvf IDEAir.tgz; cd IDEAir/cloud9hub/. Make sure config.js use a proper url for the board - our test uses 192.168.8.100. Start server with npm start. 
 
-Start server with npm start. 
+You can simply use the start-board.sh if you don't wanna bother to adjust config.js. This script will do that for you.  
 
 On the host, google-chrome 192.168.8.100/#/dashboard. 
 
